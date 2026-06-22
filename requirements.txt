@@ -182,8 +182,6 @@ threadpoolctl==3.6.0
 tifffile==2025.5.10
 tiktoken==0.13.0
 tokenizers==0.19.1
-torch==2.1.0+cu121
-torchvision==0.16.0+cu121
 tqdm==4.67.3
 transformers==4.44.0
 typer==0.25.1
