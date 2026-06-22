@@ -17,6 +17,7 @@ WORKDIR /app
 
 # 3. Installer les dépendances Python
 COPY requirements.txt .
+RUN pip install --no-cache-dir torch==2.1.0 torchvision==0.16.0 --extra-index-url https://download.pytorch.org/whl/cu121
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Copier tout le projet
