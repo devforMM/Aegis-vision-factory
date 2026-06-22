@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Live Surveillance - Aegis Vision</title>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="brand">
+        <img src="/images/logo.png" alt="AEGIS Logo" class="brand-logo">
+        <span class="brand-name"><i class="fas fa-shield-halved"></i> AEGIS VISION</span>
+    </div>
+    <ul class="navbar-menu">
+        <li><a class="navbar-item" href="/factory/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a class="navbar-item" href="/factory/incidents/all"><i class="fas fa-exclamation-triangle"></i> Incidents</a></li>
+        <li><a class="navbar-item" href="/factory/workers/all"><i class="fas fa-users"></i> Workers</a></li>
+        <li><a class="navbar-item active" href="/factory/surveillance/dashboard"><i class="fas fa-video"></i> Monitoring</a></li>
+    </ul>
+</nav>
+
+<main class="container">
+    <header class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fas fa-video"></i> Live Surveillance</h1>
+            <p class="subtitle">Real-time video monitoring with AI detection</p>
+        </div>
+        <div class="safe-status">
+            <i class="fas fa-broadcast-tower"></i>
+            <span>Connected to the factory monitoring system</span>
+        </div>
+    </header>
+
+    <section class="grid-2" style="gap: 1.5rem; margin-bottom: 2rem;">
+        <article class="card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-satellite"></i> Live Stream</h2>
+            </div>
+            <div class="card-body" style="background: #000; border-radius: var(--radius-md); padding: 1.25rem; text-align: center; min-height: 300px; display: flex; justify-content: center; align-items: center;">
+                <img id="live" width="100%" style="max-width: 100%; border-radius: 12px; display: none;">
+                <p id="live-placeholder" style="color: white; margin: 0; text-align: center;"><i class="fas fa-video-slash" style="font-size: 32px; margin-bottom: 10px; display: block;"></i> Video stream will appear here</p>
+            </div>
+            <div style="display: flex; gap: 0.9rem; margin-top: 1.25rem; flex-wrap: wrap;">
+                <button id="btn-start" class="primary" style="flex: 1; min-width: 150px;">
+                    <i class="fas fa-play-circle"></i> Start
+                </button>
+                <button id="btn-stop" class="secondary" style="flex: 1; min-width: 150px;">
+                    <i class="fas fa-stop-circle"></i> Stop
+                </button>
+            </div>
+            <p id="live-status" style="text-align: center; margin-top: 1rem; font-weight: 600;"></p>
+        </article>
+
+        <article class="card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-check-square"></i> Live Detections</h2>
+            </div>
+            <div id="detections" style="background: var(--bg-color); padding: 1.25rem; border-radius: var(--radius-md); min-height: 300px; max-height: 400px; overflow-y: auto;">
+                <p style="text-align: center; color: var(--text-muted);"><i class="fas fa-pause"></i> Waiting for alerts...</p>
+            </div>
+            <audio id="fire-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+        </article>
+    </section>
+
+    <article class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-film"></i> Video Analysis</h2>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 1.2rem;">Upload a video for detailed AI review and safety insights.</p>
+        <form id="form" style="display: flex; gap: 0.9rem; align-items: center; flex-wrap: wrap;">
+            <input type="file" name="video" accept="video/*" required style="margin: 0; flex: 1; min-width: 220px;">
+            <button type="submit" class="primary" style="flex: 0 0 auto; min-width: 160px;">
+                <i class="fas fa-rocket"></i> Analyze
+            </button>
+        </form>
+        <p id="analysis-status" style="margin-top: 1.2rem; text-align: center; font-weight: 600;"></p>
+    </article>
+
+    <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="/factory/admin/dashboard" class="button secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</main>
+
+<script>
+const img = document.getElementById("live");
+const livePlaceholder = document.getElementById("live-placeholder");
+const detections = document.getElementById("detections");
+const liveStatus = document.getElementById("live-status");
+const fireSound = document.getElementById("fire-sound");
+const analysisStatus = document.getElementById("analysis-status");
+const btnStart = document.getElementById("btn-start");
+const btnStop = document.getElementById("btn-stop");
+const form = document.getElementById("form");
+
+let socket = null;
+
+function getWebSocketUrl() {
+    const url = new URL(window.location.href);
+    const scheme = url.protocol === "https:" ? "wss:" : "ws:";
+    return `${scheme}//${url.host}/factory/surveillance/live_surveillance`;
+}
+
+function updateLiveStatus(text, color) {
+    liveStatus.innerText = text;
+    liveStatus.style.color = color;
+}
+
+function appendStatusMessage(message) {
+    const paragraph = document.createElement("p");
+    paragraph.style.color = "var(--text-muted)";
+    paragraph.style.margin = "0.75rem 0 0";
+    paragraph.textContent = message;
+    detections.appendChild(paragraph);
+}
+
+function startSurveillance() {
+    updateLiveStatus("?? Connecting...", "#16a34a");
+    socket = new WebSocket(getWebSocketUrl());
+
+    socket.onopen = () => {
+        updateLiveStatus("?? Live surveillance active", "#16a34a");
+        livePlaceholder.style.display = "none";
+    };
+
+    socket.onmessage = (event) => {
+        let data;
+        try {
+            data = JSON.parse(event.data);
+        } catch (e) {
+            console.error("Invalid JSON:", e);
+            return;
+        }
+
+        if (data.error) {
+            updateLiveStatus(`? ${data.error}`, "#dc2626");
+            return;
+        }
+
+        img.src = `data:image/jpeg;base64,${data.text_image}`;
+        img.style.display = "block";
+
+        const hasViolations = data.ppe_detection && data.ppe_detection.some(d => d.class.toLowerCase().startsWith("no"));
+        const fireAlert = data.fire_detection && data.fire_detection.length > 0;
+
+        let html = "";
+
+        if (hasViolations) {
+            html += `<div class="ppe-alert"><i class="fas fa-vest"></i><div><strong>?? PPE violation detected</strong><ul style="margin: 10px 0 0 20px;">`;
+            data.ppe_detection.forEach(d => {
+                html += `<li>${d.class} - Qty: ${d.quantity} (${d.confidence})</li>`;
+            });
+            html += `</ul></div></div>`;
+        } else {
+            html += `<div class="safe-status"><i class="fas fa-check-circle"></i> No PPE violations</div>`;
+        }
+
+        if (fireAlert) {
+            fireSound.play();
+            html += `<div class="fire-alert"><i class="fas fa-fire"></i><div><strong>?? FIRE DETECTED!</strong><ul style="margin: 10px 0 0 20px;">`;
+            data.fire_detection.forEach(d => {
+                html += `<li>${d.class} (${d.confidence})</li>`;
+            });
+            html += `</ul></div></div>`;
+        } else {
+            html += `<div class="safe-status"><i class="fas fa-check-circle"></i> No fire detected</div>`;
+        }
+
+        detections.innerHTML = html;
+    };
+
+    socket.onerror = () => {
+        updateLiveStatus("? Connection error", "#dc2626");
+    };
+
+    socket.onclose = () => {
+        updateLiveStatus("?? Monitoring stopped", "#f97316");
+    };
+}
+
+function stopSurveillance() {
+    if (socket) {
+        socket.close();
+        socket = null;
+    }
+    img.src = "";
+    img.style.display = "none";
+    livePlaceholder.style.display = "flex";
+    detections.innerHTML = '<p style="text-align: center; color: var(--text-muted);"><i class="fas fa-pause"></i> Waiting for alerts...</p>';
+    updateLiveStatus("? Monitoring stopped", "#f97316");
+}
+
+btnStart.addEventListener("click", startSurveillance);
+btnStop.addEventListener("click", stopSurveillance);
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    analysisStatus.innerText = "?? Analysis in progress...";
+    analysisStatus.style.color = "#f97316";
+
+    const formData = new FormData(form);
+
+    const response = await fetch("/factory/surveillance/video_analysis", {
+        method: "POST",
+        body: formData
+    });
+
+    if (!response.ok) {
+        analysisStatus.innerText = "? Analysis failed";
+        analysisStatus.style.color = "#dc2626";
+        return;
+    }
+
+    analysisStatus.innerText = "? Analysis completed successfully!";
+    analysisStatus.style.color = "#16a34a";
+});
+</script>
+
+</body>
+</html>

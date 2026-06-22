@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Incidents - Aegis Vision</title>
+</head>
+
+<body>
+
+<header>
+    <h1><i class="fas fa-exclamation-triangle"></i> Incidents List</h1>
+    <p>Comprehensive monitoring of all incidents and alerts</p>
+</header>
+
+{% if incidents|length == 0 %}
+<div style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-lg); text-align: center; margin-top: 30px; border: 1px solid var(--border-color);">
+    <i class="fas fa-check-circle" style="font-size: 48px; color: var(--accent-safe); margin-bottom: 20px; display: block;"></i>
+    <h3 style="color: var(--text-dark);">No incidents detected</h3>
+    <p style="color: var(--text-muted); margin-top: 10px;">All workers are safe. Good job! 👍</p>
+</div>
+{% else %}
+
+<table>
+    <thead>
+        <tr>
+            <th><i class="fas fa-hashtag"></i> Incident ID</th>
+            <th><i class="fas fa-calendar"></i> Date</th>
+            <th><i class="fas fa-fire"></i> Fire Detections</th>
+            <th><i class="fas fa-vest"></i> PPE Violations</th>
+            <th><i class="fas fa-info-circle"></i> Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for i in incidents %}
+        <tr>
+            <td><strong>#{{ i.id }}</strong></td>
+            <td>
+                <span class="badge">{{ i.date }}</span>
+            </td>
+            <td>
+                {% if i.fire_detections and i.fire_detections|length > 0 %}
+                    <span class="badge badge-danger">
+                        <i class="fas fa-fire"></i> {{ i.fire_detections|length }}
+                    </span>
+                {% else %}
+                    <span style="color: var(--text-muted);">—</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if i.ppe_detections and i.ppe_detections|length > 0 %}
+                    <span class="badge badge-warning">
+                        <i class="fas fa-vest"></i> {{ i.ppe_detections|length }}
+                    </span>
+                {% else %}
+                    <span style="color: var(--text-muted);">—</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="/factory/incidents/incident_informations/{{ i.id }}" style="background: var(--primary-color); color: var(--text-dark); padding: 8px 12px; border-radius: 6px; display: inline-block; font-size: 13px; border: 1px solid var(--secondary-color);">
+                    <i class="fas fa-eye"></i> Details
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
+<p style="text-align: center; margin-top: 30px;">
+    <a href="/factory/admin/dashboard" style="background: var(--secondary-color); color: white; padding: 12px 20px; border-radius: var(--radius-md); display: inline-block;">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</p>
+
+</body>
+</html>

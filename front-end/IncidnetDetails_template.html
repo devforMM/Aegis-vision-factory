@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Incident Details - Aegis Vision</title>
+</head>
+
+<body>
+
+<article class="full-card">
+    <h1 style="color: var(--accent-warning);"><i class="fas fa-exclamation-triangle"></i> Incident Details</h1>
+    
+    <section style="background: var(--bg-color); padding: 20px; border-radius: var(--radius-md); margin: 20px 0;">
+        <p><strong>Incident ID:</strong> #{{ incident.id }}</p>
+        <p><strong>Date:</strong> <span class="badge">{{ incident.date }}</span></p>
+    </section>
+
+    <hr style="border: none; height: 1px; background: var(--border-color); margin: 30px 0;">
+
+    <h2><i class="fas fa-film"></i> Original Video</h2>
+    <video width="100%" style="max-width: 600px; border-radius: var(--radius-md); margin-top: 15px;" controls>
+        <source src="/{{ incident.original_video_path }}" type="video/mp4">
+        Your browser does not support HTML5 video streaming.
+    </video>
+
+    <hr style="border: none; height: 1px; background: var(--border-color); margin: 30px 0;">
+
+    <h2><i class="fas fa-video"></i> Analysed Video</h2>
+    <video width="100%" style="max-width: 600px; border-radius: var(--radius-md); margin-top: 15px;" controls>
+        <source src="/{{ incident.analyzed_video_path }}" type="video/mp4">
+        Your browser does not support HTML5 video streaming.
+    </video>
+
+    <hr style="border: none; height: 1px; background: var(--border-color); margin: 30px 0;">
+
+    <h2><i class="fas fa-fire"></i> Fire Detections</h2>
+
+{% if incident.fire_detections %}
+    <div style="
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        margin-top: 20px;
+    ">
+
+        {% for fire in incident.fire_detections %}
+
+            <div style="
+                background: #0f172a;
+                border: 1px solid #475569;
+                border-left: 5px solid #ef4444;
+                padding: 18px;
+                border-radius: 14px;
+                margin-bottom: 18px;
+            ">
+                <div style="
+                    color: #94a3b8;
+                    font-size: 13px;
+                    margin-bottom: 12px;
+                ">
+                    <i class="fas fa-clock" style="color:#ef4444;"></i> {{ fire.timestamp }}
+                </div>
+
+                {% set detections = fire.detections %}
+
+                {% if detections is string %}
+                    {% set detections = detections | replace("'", '"') | from_json %}
+                {% endif %}
+
+                {% for det in detections %}
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background: #111827;
+                        padding: 12px 15px;
+                        border-radius: 10px;
+                        margin-bottom: 10px;
+                    ">
+
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            font-weight: bold;
+                            color: #f8fafc;
+                        ">
+                            <i class="fas fa-fire" style="color:#ef4444;"></i>
+
+                            {{ det.class | replace('_', ' ') | title }}
+                        </div>
+
+                        <span style="
+                            background: rgba(239,68,68,0.15);
+                            color: #f87171;
+                            padding: 6px 12px;
+                            border-radius: 999px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            border: 1px solid rgba(239,68,68,0.4);
+                        ">
+                            {{ det.confidence }}
+                        </span>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+    </div>
+
+{% else %}
+    <p style="color: var(--text-muted); font-style: italic;">
+        ✅ No fire hazards detected
+    </p>
+{% endif %}
+
+    <hr style="border: none; height: 1px; background: var(--border-color); margin: 30px 0;">
+
+    <h2><i class="fas fa-vest"></i> PPE Detections</h2>
+
+{% if incident.ppe_detections %}
+    <div style="
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        margin-top: 20px;
+    ">
+
+        {% for ppe in incident.ppe_detections %}
+
+            <div style="
+                background: #0f172a;
+                border: 1px solid #475569;
+                border-left: 5px solid #f59e0b;
+                padding: 18px;
+                border-radius: 14px;
+                margin-bottom: 18px;
+            ">
+                <div style="
+                    color: #94a3b8;
+                    font-size: 13px;
+                    margin-bottom: 12px;
+                ">
+                    <i class="fas fa-clock" style="color:#f59e0b;"></i> {{ ppe.timestamp }}
+                </div>
+
+                {% set detections = ppe.detections %}
+
+                {% if detections is string %}
+                    {% set detections = detections | replace("'", '"') | from_json %}
+                {% endif %}
+
+                {% for det in detections %}
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background: #111827;
+                        padding: 12px 15px;
+                        border-radius: 10px;
+                        margin-bottom: 10px;
+                    ">
+
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            font-weight: bold;
+                            color: #f8fafc;
+                        ">
+                            <i class="fas fa-triangle-exclamation" style="color:#f59e0b;"></i>
+
+                            {{ det.class | replace('_', ' ') | title }}
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            {% if det.quantity %}
+                            <span style="
+                                background: rgba(59,130,246,0.15);
+                                color: #60a5fa;
+                                padding: 6px 12px;
+                                border-radius: 999px;
+                                font-size: 13px;
+                                font-weight: bold;
+                                border: 1px solid rgba(59,130,246,0.4);
+                            ">
+                                Qty: {{ det.quantity }}
+                            </span>
+                            {% endif %}
+                            <span style="
+                                background: rgba(245,158,11,0.15);
+                                color: #fbbf24;
+                                padding: 6px 12px;
+                                border-radius: 999px;
+                                font-size: 14px;
+                                font-weight: bold;
+                                border: 1px solid rgba(245,158,11,0.4);
+                            ">
+                                {{ det.confidence }}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% endfor %}
+    </div>
+
+{% else %}
+    <p style="color: #94a3b8; font-style: italic;">
+        ✅ No PPE violations detected
+    </p>
+{% endif %}
+</article>
+
+<p style="text-align: center; margin-top: 40px;">
+    <a href="/factory/incidents/all" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-block; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-arrow-left"></i> Back to Incidents
+    </a>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Mark Attendance - Aegis Vision</title>
+</head>
+
+<body>
+
+<header>
+    <h1 style="color: var(--accent-warning);"><i class="fas fa-camera"></i> Attendance Marking</h1>
+    <p>Facial recognition and automated check-in logging</p>
+</header>
+
+<section style="display: flex; justify-content: center; margin-top: 40px;">
+    <article style="width: 400px; text-align: center;">
+        <form action="/factory/workers/mark_attendance" method="POST">
+            <i class="fas fa-microchip" style="font-size: 48px; color: var(--primary-color); margin-bottom: 20px; display: block;"></i>
+            <h3 style="margin-bottom: 20px;">Start Recognition Engine</h3>
+            {% if worker_name %}
+            <p style="color: var(--text-dark); font-weight: 700; margin-bottom: 10px;">Worker: {{ worker_name }}</p>
+            <input type="hidden" name="worker_id" value="{{ worker_id }}" />
+            {% else %}
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Click the button below to initialize facial recognition scanning and automatically log attendance updates.</p>
+            {% endif %}
+            <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 16px 30px; font-size: 16px;">
+                <i class="fas fa-play-circle"></i> Launch Recognition
+            </button>
+        </form>
+    </article>
+</section>
+
+{% if message %}
+    <section style="margin-top: 40px; display: flex; justify-content: center;">
+        <article style="width: 400px; text-align: center;">
+            <div class="safe-status" style="margin: 0;">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ message }}</span>
+            </div>
+        </article>
+    </section>
+{% endif %}
+
+{% if image %}
+<section style="margin-top: 30px; display: flex; justify-content: center;">
+    <article style="width: 400px; text-align: center;">
+        <img 
+            src="data:image/jpeg;base64,{{ image }}" 
+            style="width: 100%; border-radius: 12px; border: 2px solid var(--primary-color);"
+        />
+    </article>
+</section>
+{% endif %}
+
+<p style="text-align: center; margin-top: 40px;">
+    <a href="/factory/admin/dashboard" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-block; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</p>
+
+</body>
+
+</html>

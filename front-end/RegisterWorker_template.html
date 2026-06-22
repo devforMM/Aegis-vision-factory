@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Worker Registration - Aegis Vision</title>
+</head>
+<body>
+    <main class="login-container">
+        <article class="login-box" style="width: 500px;">
+            <div class="login-header">
+                <img src="/images/logo.png" alt="AEGIS VISION Logo" class="logo">
+                <h2 style="color: var(--accent-warning);"><i class="fas fa-user-tie"></i> Worker Registration</h2>
+                <p>Add a new worker to the system</p>
+            </div>
+        {% if message %}
+            <div style="
+                background: rgba(255,0,0,0.1);
+                border: 1px solid red;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                text-align: center;
+                color: red;
+                font-weight: bold;
+            ">
+                <i class="fas fa-times-circle"></i>
+                {{ message }}
+            </div>
+        {% endif %}
+
+            <form action="/factory/workers/register" method="POST" enctype="multipart/form-data">
+                <input type="text" name="last_name" placeholder="Last Name" required>
+                <input type="text" name="first_name" placeholder="First Name" required>
+                <input type="tel" name="phone_number" placeholder="Phone Number" required>
+                <input type="text" name="address" placeholder="Address" required>
+                <input type="number" name="age" placeholder="Age" required>
+                <input type="text" name="role" placeholder="Role/Position" required>
+                <input type="text" name="gender" placeholder="Gender" required>
+                <input type="file" name="face" placeholder="face" required>
+                <button type="submit"><i class="fas fa-save"></i> Register Worker</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 20px; color: var(--text-muted);">
+                <a href="/factory/workers/all" style="color: var(--accent-warning); font-weight: 600;">Back to Worker List</a>
+            </p>
+        </article>
+    </main>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Travailleurs - Aegis Vision</title>
+</head>
+<body>
+
+<nav style="margin-bottom: 20px; display: flex; gap: 10px; background: transparent; padding: 0;">
+    <a href="/factory/admin/dashboard" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-arrow-left"></i> Dashboard
+    </a>
+    <a href="/factory/admin/attendance/log" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-calendar"></i> Attendance Log
+    </a>
+    <a href="/factory/workers/register" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-user-plus"></i> Register Worker
+    </a>
+</nav>
+
+<header>
+    <h1><i class="fas fa-users"></i> Worker Management</h1>
+    <p>Complete list of factory workers</p>
+</header>
+
+<table>
+    <thead>
+        <tr>
+            <th><i class="fas fa-user"></i> Name</th>
+            <th><i class="fas fa-briefcase"></i> Position</th>
+            <th><i class="fas fa-info-circle"></i> Info</th>
+            <th><i class="fas fa-eye"></i> Details</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for w in workers %}
+        <tr>
+            <td>
+                <strong>{{ w.last_name }} {{ w.first_name }}</strong>
+                <br/>
+                <small style="color: var(--text-muted);">{{ w.status }}</small>
+            </td>
+            <td>
+                <span class="badge">{{ w.gender }}</span>
+                <p style="margin-top: 5px; color: var(--text-muted); font-size: 13px;">{{ w.age }} years</p>
+            </td>
+            <td>
+                ID: <strong>#{{ w.id }}</strong>
+            </td>
+            <td>
+                <a href="/factory/workers/worker-details/{{w.id}}" style="background: var(--primary-color); color: var(--text-dark); padding: 8px 12px; border-radius: 6px; display: inline-block; font-size: 13px; border: 1px solid var(--secondary-color);">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Attendance Register - Aegis Vision</title>
+</head>
+
+<body>
+
+<header>
+    <h1><i class="fas fa-clipboard-list"></i> Attendance Register</h1>
+    <p>View and manage worker attendance records</p>
+</header>
+
+{% if msg == "created" %}
+    <p style="color:green; text-align:center; font-weight:bold;">
+        ✅ Register created successfully
+    </p>
+{% elif msg == "exist" %}
+    <p style="color:red; text-align:center; font-weight:bold;">
+        ❌ A register already exists for today
+    </p>
+{% endif %}
+<section style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
+    <!-- FILTER BY DATE -->
+    <article>
+        <h3 style="color: var(--accent-warning); margin-bottom: 20px;"><i class="fas fa-calendar"></i> Filter by Date</h3>
+        <form action="/factory/admin/attendance/new_register" method="POST">
+            <label for="date" style="display: block; margin-bottom: 10px; font-weight: 600;">Date</label>
+            <input type="text" name="date" id="date" placeholder="dd/mm/yyyy" required>
+            <button type="submit" style="margin-top: 10px;">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
+    </article>
+
+    <!-- CREATE REGISTER -->
+    <article>
+        <h3 style="color: var(--accent-warning); margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> New Register</h3>
+        <form action="/factory/admin/attendance/new_register" method="POST">
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Create a register for today</p>
+            <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                <i class="fas fa-file-alt"></i> Create for Today
+            </button>
+        </form>
+    </article>
+</section>
+
+    <section style="margin-bottom: 40px; text-align: center;">
+        <a href="/factory/workers/mark_attendance" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: var(--text-dark); padding: 14px 22px; border-radius: 12px; border: 1px solid var(--secondary-color); text-decoration: none; font-weight: 700;">
+            <i class="fas fa-user-check"></i> Use Attendance Marking Template
+        </a>
+    </section>
+
+<section>
+    {% if registre_presences and registre_presences|length > 0 %}
+    <table>
+        <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> ID Travailleur</th>
+                <th><i class="fas fa-user"></i> Nom</th>
+                <th><i class="fas fa-briefcase"></i> Rôle</th>
+                <th><i class="fas fa-check-circle"></i> État</th>
+                <th><i class="fas fa-calendar"></i> Date</th>
+                <th><i class="fas fa-clock"></i> Heure</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for presence in registre_presences %}
+            <tr>
+                <td>
+                    <strong>#{{ presence.worker_id }}</strong>
+                    <br/>
+                    {% if presence.etat != 'Présent' and presence.etat != 'Present' %}
+                    <a href="/factory/workers/mark_attendance?worker_id={{ presence.worker_id }}" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; background: #16a34a; color: #ffffff; padding: 6px 10px; border-radius: 8px; font-size: 12px; text-decoration: none;">
+                        <i class="fas fa-arrow-right"></i> Mark Present
+                    </a>
+                    {% endif %}
+                </td>
+                <td>{{ presence.worker_informations }}</td>
+                <td><span class="badge">{{ presence.role }}</span></td>
+                <td>
+                    {% if presence.etat == 'Présent' or presence.etat == 'Present' %}
+                        <span class="badge badge-success"><i class="fas fa-check"></i> Present</span>
+                    {% elif presence.etat == 'Absent' %}
+                        <span class="badge badge-danger"><i class="fas fa-times"></i> Absent</span>
+                    {% else %}
+                        <span class="badge badge-warning">{{ presence.etat }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ presence.date }}</td>
+                <td>{{ presence.heure }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-lg); text-align: center; margin-top: 20px; border: 1px solid var(--border-color);">
+        <i class="fas fa-inbox" style="font-size: 48px; color: var(--text-muted); margin-bottom: 20px; display: block;"></i>
+        <h3 style="color: var(--text-dark);">No records available</h3>
+        <p style="color: var(--text-muted); margin-top: 10px;">Please create a new register or search by date</p>
+    </div>
+    {% endif %}
+</section>
+
+<p style="text-align: center; margin-top: 40px;">
+    <a href="/factory/admin/dashboard" style="background: var(--primary-color); color: var(--text-dark); padding: 12px 20px; border-radius: var(--radius-md); display: inline-block; border: 1px solid var(--secondary-color);">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</p>
+
+</body>
+</html>
