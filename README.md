@@ -1,7 +1,7 @@
 # 🏭 USINE — AI-Powered Industrial Safety Monitoring System
 
 > **An intelligent industrial safety platform** combining computer vision, fire detection, and badge recognition for real-time monitoring of the work environment.
-
+Fulle DEMO Video: https://youtu.be/sBsrAlnueOk
 ---
 
 ## 📋 Table of Contents
